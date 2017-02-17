@@ -4,9 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.OData;
 using TheBookStore.Contracts;
 using TheBookStore.DataStores;
 using TheBookStore.DataTransferObjects;
+using TheBookStore.Infrastructure;
 
 namespace TheBookStore.Controllers
 {
@@ -14,11 +16,12 @@ namespace TheBookStore.Controllers
     {
         private IUnitOfWork unit;
 
-        public BooksController()
+        public BooksController(IUnitOfWork unit)
         {
-            this.unit = new SampleDataStore();
+            this.unit = unit;
         }
-
+        
+        [EnableQuery]
         public IHttpActionResult Get()
         {
             var books = unit.Books.All;
@@ -28,6 +31,7 @@ namespace TheBookStore.Controllers
             return Ok(response);
         }
 
+        [EnableQuery]
         public IHttpActionResult Get(string query)
         {
             var results = unit.Books.Search(query);
@@ -42,6 +46,7 @@ namespace TheBookStore.Controllers
             return Ok(response);
         }
 
+        [CheckNulls]
         public IHttpActionResult Get(int id)
         {
             var result = unit.Books.GetOne(id);
