@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Description;
 using System.Web.Http.OData;
 using TheBookStore.Contracts;
 using TheBookStore.DataStores;
@@ -12,16 +13,25 @@ using TheBookStore.Infrastructure;
 
 namespace TheBookStore.Controllers
 {
+    /// <summary>
+    /// Use this API to get all the books, search for a specific criteria or get a single book
+    /// </summary>
     public class BooksController : ApiController
     {
+
         private IUnitOfWork unit;
 
         public BooksController(IUnitOfWork unit)
         {
             this.unit = unit;
         }
-        
+
+        /// <summary>
+        /// Retrieves all books registered on the system
+        /// </summary>
+        /// <returns>Collection of book entities</returns>
         [EnableQuery]
+        [ResponseType(typeof(IEnumerable<BookDto>))]
         public IHttpActionResult Get()
         {
             var books = unit.Books.All;
@@ -31,7 +41,13 @@ namespace TheBookStore.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Searches books for a specific query
+        /// </summary>
+        /// <param name="query">Query text to search</param>
+        /// <returns>Filtered list based on search criteria</returns>
         [EnableQuery]
+        [ResponseType(typeof(IEnumerable<BookDto>))]
         public IHttpActionResult Get(string query)
         {
             var results = unit.Books.Search(query);
@@ -44,9 +60,16 @@ namespace TheBookStore.Controllers
             var response = results.To<BookDto>();
 
             return Ok(response);
+
         }
 
+        /// <summary>
+        /// Gets a single book
+        /// </summary>
+        /// <param name="id">Unique identifier for book</param>
+        /// <returns>Single book entity</returns>
         [CheckNulls]
+        [ResponseType(typeof(BookDto))]
         public IHttpActionResult Get(int id)
         {
             var result = unit.Books.GetOne(id);
@@ -60,5 +83,9 @@ namespace TheBookStore.Controllers
 
             return Ok(response);
         }
+
+
+
+
     }
 }
